@@ -70,7 +70,9 @@ def init_indexes() -> None:
     db.page_components.create_index("parent_id")
     db.page_components.create_index([("page_id", 1), ("order", 1)])
 
-    db.page_data_schemas.create_index("page_id", unique=True)
+    db.entities.create_index("organization_id")
+    db.entities.create_index("software_id")
+    db.entities.create_index([("software_id", 1), ("slug", 1)], unique=True)
 
     db.user_profiles.create_index("user_id", unique=True)
     db.user_profiles.create_index("organization_id")

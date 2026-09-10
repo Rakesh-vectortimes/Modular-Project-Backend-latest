@@ -11,7 +11,7 @@ from app.schemas.page_data import (
     SubmissionRead,
 )
 from app.schemas.user import CurrentUser
-from app.services import page_data_schema_service, page_service
+from app.services import entity_service, page_service
 
 router = APIRouter(prefix="/pages", tags=["page-data"])
 
@@ -32,7 +32,7 @@ def get_data_schema(
     page = page_service.get_page(db, page_id, current_user.organization_id)
     if page is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
-    return page_data_schema_service.get_page_data_schema(db, page_id)
+    return entity_service.get_schema_for_page(db, page_id)
 
 
 @router.post("/{page_id}/submissions", response_model=SubmissionRead, status_code=status.HTTP_201_CREATED)
@@ -49,10 +49,17 @@ def create_submission(
     if page is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
     try:
-        return page_data_schema_service.insert_submission(
+        record = entity_service.insert_record_for_page(
             db, page_id, data.values, submitted_by=current_user.id
         )
-    except page_data_schema_service.PageHasNoDataCollectionError as exc:
+        return SubmissionRead(
+            id=record.id,
+            page_id=page_id,
+            values=record.values,
+            submitted_at=record.submitted_at,
+            submitted_by=record.submitted_by,
+        )
+    except entity_service.PageHasNoDataCollectionError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except WriteError as exc:
         # The $jsonSchema validator rejected this document — e.g. a required
@@ -77,4 +84,17 @@ def list_submissions(
     page = page_service.get_page(db, page_id, current_user.organization_id)
     if page is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
-    return page_data_schema_service.list_submissions(db, page_id, skip=skip, limit=limit)
+    records = entity_service.list_records_for_page(db, page_id, skip=skip, limit=limit)
+    return SubmissionListRead(
+        total=records.total,
+        items=[
+            SubmissionRead(
+                id=r.id,
+                page_id=page_id,
+                values=r.values,
+                submitted_at=r.submitted_at,
+                submitted_by=r.submitted_by,
+            )
+            for r in records.items
+        ],
+    )
