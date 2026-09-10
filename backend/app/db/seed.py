@@ -249,6 +249,8 @@ COMPONENT_DEFINITIONS = [
         "default_props": {
             "widgetType": "data_table",
             "title": "",
+            "sourceType": "entity",
+            "sourceEntityId": "",
             "sourcePageId": "",
             "pageSize": 50,
             "links": ["Home", "About"],
@@ -267,6 +269,13 @@ COMPONENT_DEFINITIONS = [
                 ],
             },
             {"key": "title", "label": "Title", "inputType": "text"},
+            {
+                "key": "sourceType",
+                "label": "Data source",
+                "inputType": "select",
+                "options": ["entity", "page"],
+            },
+            {"key": "sourceEntityId", "label": "Source Entity (table)", "inputType": "entity_select"},
             {"key": "sourcePageId", "label": "Source Page", "inputType": "page_select"},
             {"key": "pageSize", "label": "Rows per Page", "inputType": "number"},
             {"key": "links", "label": "Links", "inputType": "list"},
@@ -1001,10 +1010,19 @@ COMPONENT_DEFINITIONS = [
         "category": "Display",
         "is_container": False,
         "default_props": {
+            "sourceType": "entity",
+            "sourceEntityId": "",
             "sourcePageId": "",
             "pageSize": 50,
         },
         "property_schema": [
+            {
+                "key": "sourceType",
+                "label": "Data source",
+                "inputType": "select",
+                "options": ["entity", "page"],
+            },
+            {"key": "sourceEntityId", "label": "Source Entity (table)", "inputType": "entity_select"},
             {"key": "sourcePageId", "label": "Source Page", "inputType": "page_select"},
             {"key": "pageSize", "label": "Rows per Page", "inputType": "number"},
         ],

@@ -11,7 +11,7 @@ from app.schemas.layout import (
     PageSettings,
     PublishedLayoutRead,
 )
-from app.services import component_definition_service, page_data_schema_service
+from app.services import entity_service
 
 
 class PageLayoutNotFoundError(Exception):
@@ -164,15 +164,10 @@ def replace_page_layout(
 
     layout = get_page_layout(db, page_id)
 
-    # Auto-create/update this page's data collection based on any input
-    # components now present in the saved layout (design doc §6).
-    input_types = component_definition_service.get_input_type_data_types(db)
-    page_data_schema_service.sync_page_schema(
-        db,
-        page_id,
-        [node.model_dump() for node in layout.components],
-        input_types,
-    )
+    # Auto-create/update the reusable entity (table) this page's form is bound
+    # to, from the input components now present in the saved layout. Pages that
+    # share an entity name share one collection (design doc: Reusable Entities).
+    entity_service.sync_page_entity(db, page_id)
 
     return layout
 

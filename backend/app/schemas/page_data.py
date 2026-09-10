@@ -19,6 +19,9 @@ class PageDataSchemaRead(BaseModel):
     page_id: str
     collection_name: str | None = None
     fields: list[PageDataFieldSpec] = Field(default_factory=list)
+    # The reusable entity (table) this page's form is bound to.
+    entity_id: str | None = None
+    entity_name: str | None = None
     updated_at: datetime | None = None
 
 
